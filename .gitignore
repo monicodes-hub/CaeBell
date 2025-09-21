@@ -1,0 +1,33 @@
+# Ignorar build y dist de PyInstaller
+build/
+dist/
+
+# Ignorar archivos del proyecto
+app/data/
+app/logs/
+app/resources/
+app/src/arduino/
+
+# Ignorar cachés de Python
+src/python/__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+
+# Ignorar archivo .spec
+*.spec
+
+# Ignorar entornos virtuales
+venv/
+.env/
+.env
+
+# Ignorar archivos de configuración de editores
+.vscode/
+.idea/
+.DS_Store
+*.log
+
+# Ignorar archivos del sistema
+.DS_Store
+Thumbs.db

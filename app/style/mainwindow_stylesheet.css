@@ -1,0 +1,96 @@
+/* 1. Set border-image background on QMainWindow */
+QMainWindow {
+	border-image: url(":/images/resources/background.png") 0 0 0 0 stretch stretch;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+/* 2. Menubar opaque in black */
+QMenuBar {
+    background-color: black;
+    color: white;
+}
+
+/* Optional: menu item hover style */
+QMenuBar::item:selected {
+    background: #444;
+}
+
+/* 3. All "blank_space" transparent */
+#blank_space_left,
+#blank_space_middle_left,
+#blank_space_middle_right,
+#blank_space_right {
+    background-color: transparent;
+}
+
+/* Make mainbody and all children fully transparent */
+#mainbody,
+#mainbody * {
+    background: transparent;
+    border: none;
+}
+
+/* QPushButtons inside mainbody */
+#mainbody QPushButton {
+    background: transparent;
+    border: none;
+    color: white; /* or any text color you prefer */
+}
+
+/* Hover effect for QPushButtons */
+#mainbody QPushButton:hover {
+    background: rgba(255, 255, 255, 40); /* subtle white overlay */
+    border-radius: 4px; /* optional rounding */
+}
+
+
+/* 5. menuleft and contents transparent */
+#menuleft,
+#brand_logo,
+#ml_frame0, #ml_button1,
+#ml_frame1, #ml_frameA, #ml_label1A, #ml_label2A, #ml_label3A,
+#ml_frameB, #ml_label1B, #ml_label2B, #ml_label3B,
+#ml_frameC, #ml_label1C, #ml_label2C, #ml_label3C {
+    background-color: transparent;
+	border: none;
+}
+
+/* 5b. EXCEPTION: ml_content and its contents semi-transparent */
+#ml_content,
+#ml_frame0, #ml_button1,
+#ml_frame1, #ml_frameA, #ml_label1A, #ml_label2A, #ml_label3A,
+#ml_frameB, #ml_label1B, #ml_label2B, #ml_label3B,
+#ml_frameC, #ml_label1C, #ml_label2C, #ml_label3C {
+    background-color: rgba(0, 0, 0, 70);
+	border: none;
+}
+
+/* 6. menuright and all its contents semi-transparent */
+#menuright,
+#mr_content,
+#mr_frame1, #mr_frame2, #mr_frame3, #mr_frame4, #mr_frame5,
+#mr_frame1_a_label1, #mr_frame1_c_label2,
+#mr_frame2_a_label1, #mr_frame2_c_label2,
+#mr_frame3_a_label1, #mr_frame3_c_label2,
+#mr_frame4_a_label1, #mr_frame4_c_label2,
+#mr_frame5_a_label1, #mr_frame5_c_label2,
+#program_name {
+    background-color: rgba(0, 0, 0, 70);
+    border: none;
+}
+
+/* ProgressBars: styled separately, without opaque background */
+QProgressBar {
+    border: none;
+    border-radius: 6px;
+    background-color: rgba(255, 255, 255, 40); /* subtle background */
+    text-align: center;
+    color: white;
+}
+
+QProgressBar::chunk {
+    border-radius: 6px;
+    background-color: rgba(0, 181, 204, 1); /* blue fill */
+}
