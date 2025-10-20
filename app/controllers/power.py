@@ -1,57 +1,48 @@
+import threading
+from app.controllers import ports as p
 
-# --- CONSTANTES BASE ---
-V_REF = 5.0         # Voltaje de referencia del ADC
-V_SUPPLY = 12.0      # Voltaje de alimentación del circuito
-R_SHUNT = 0.22       # Valor del resistor shunt (ohmios)
+V_ENTRADA = 12.0    # Voltaje de entrada fijo (V)
+R_SHUNT = 0.2205    # Resistencia media del shunt (Ω)
 
-# --- PARÁMETROS DE CALIBRACIÓN ---
-AMP_GAIN = 0.5       # Factor de ganancia del amplificador (ajustar para calibrar)
-AMP_OFFSET = 0.0     # Offset en voltios, si el sensor tiene desplazamiento
+voltajes = {}
 
-# -------------------------------------------------------------
-# Cálculo de potencia a partir del valor analógico leído
-# -------------------------------------------------------------
-def calcular_potencia(analog_value, r_shunt=R_SHUNT, v_ref=V_REF,
-                      v_supply=V_SUPPLY, amp_gain=AMP_GAIN, amp_offset=AMP_OFFSET):
-    """
-    Calcula la potencia (W) a partir del valor analógico leído.
-
-    Fórmulas:
-        V_meas = (analog_value / 1023) * V_REF
-        V_shunt = (V_meas - AMP_OFFSET) / AMP_GAIN
-        I = V_shunt / R_SHUNT
-        P = V_SUPPLY * I
-    """
+def analog_callback(data):
+    """Callback para leer el valor de los pines analógicos."""
+    global voltajes
     try:
-        # Conversión ADC a voltaje medido
-        v_meas = (analog_value / 1023.0) * v_ref
-
-        # Compensación de ganancia y offset
-        v_shunt = (v_meas - amp_offset) / amp_gain
-
-        # Corriente y potencia
-        current = v_shunt / r_shunt
-        potencia = v_supply * current
-
-        # Filtrar valores anómalos
-        if potencia < 0 or potencia != potencia:
-            potencia = 0.0
-
-        # Devuelve potencia y valores intermedios para depuración
-        return {
-            "analog": analog_value,
-            "v_meas": v_meas,
-            "v_shunt": v_shunt,
-            "current": current,
-            "power": potencia
-        }
-
+        pin = data[1]       # Número del pin analógico
+        valor = data[2]     # Valor leído (0–1023)
+        voltaje = (valor / 1023.0) * V_ENTRADA
+        voltajes[f"A{pin}"] = voltaje
     except Exception as e:
-        print(f"Error en calcular_potencia: {e}")
-        return {
-            "analog": 0,
-            "v_meas": 0,
-            "v_shunt": 0,
-            "current": 0,
-            "power": 0
-        }
+        print(f"[ERROR] analog_callback: {e}")
+
+def update_voltage():
+    """Devuelve el voltaje leído en cada pin analógico."""
+    return voltajes
+
+def update_current():
+    """Devuelve la corriente estimada en cada pin analógico (I = Vshunt / Rshunt)."""
+    corrientes = {}
+    for pin, voltage in voltajes.items():
+        corriente = voltage / R_SHUNT if voltage > 0.02 else 0.0
+        corrientes[pin] = corriente
+    return corrientes
+
+def update_power():
+    """Devuelve la potencia estimada en cada pin analógico (P = Ventrada * Ishunt)."""
+    powers = {}
+    corrientes = update_current()
+
+    for pin, corriente in corrientes.items():
+        potencia = V_ENTRADA * corriente
+        powers[pin] = potencia if potencia >= 2.0 else 0.0  # Ignorar ruido o impedancia
+    return powers
+
+def initialize_analog_pins(board):
+    """Configura los pines analógicos A0 a A5 con el callback para lectura."""
+    for pin in p.AnalogPins:
+        try:
+            board.set_pin_mode_analog_input(pin, callback=analog_callback)
+        except Exception as e:
+            print(f"[ERROR] initialize_analog_pins({pin}): {e}")
